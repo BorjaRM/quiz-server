@@ -1,4 +1,4 @@
-import { WebSocketGateway, WebSocketServer, SubscribeMessage, OnGatewayConnection, OnGatewayDisconnect, WsResponse } from '@nestjs/websockets';
+import { WebSocketGateway, WebSocketServer, SubscribeMessage, OnGatewayConnection, OnGatewayDisconnect } from '@nestjs/websockets';
 import { Question } from '../shared/models/questions';
 
 @WebSocketGateway() // allow us to make use of the socket.io functionality
@@ -10,6 +10,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     async handleConnection() {
         // A client has connected
         this.users++;
+        console.log('ids:', Object.keys(this.server.sockets.sockets));
 
         // Notify connected clients of current users
         this.server.emit('users', this.users);
@@ -28,7 +29,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @SubscribeMessage('question')
     onGame(client, dataFromClient) {
         console.log('dataFromClient', dataFromClient);
-        client.emit('question', this.getQuestion());
+        this.server.emit('question', this.getQuestion());
     }
 
     private getQuestion(): Question {
@@ -37,28 +38,27 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
         return this.mockQuestions[n];
       }
 
-
     mockQuestions: Question[] = [
         {
-          question: 'pregunta 1',
-          options: ['1', '2', '3', '4'],
+          question: 'What did Alfred Nobel develop?',
+          options: ['Dynamite', 'Gunpowder', 'Nobelium', 'Atomic bomb'],
           answer: 0,
          },
          {
-          question: 'pregunta 2',
-          options: ['1', '2', '3', '4'],
-          answer: 1,
-         },
-         {
-          question: 'pregunta 3',
-          options: ['1', '2', '3', '4'],
-          answer: 2,
-         },
-         {
-          question: 'pregunta 4',
-          options: ['1', '2', '3', '4'],
+          question: 'Which of these chess figures is closely related to "Bohemian Rhapsody"?',
+          options: ['King', 'Pawn', 'Bishop', 'Queen'],
           answer: 3,
-         }
+          },
+         {
+          question: 'What restaurant franchise advises you to "Eat Fresh"?',
+          options: ['Taco Bell', 'McDonald\'s', 'KFC', 'Subway'],
+          answer: 3,
+         },
+         {
+          question: 'Which of these antagonist characters was created by novelist J.K. Rowling?',
+          options: ['Lord Voldemort', 'Darth Vader', 'Professor Moriarty', 'Lord Farqaad'],
+          answer: 3,
+         },
       ];
 
 }
